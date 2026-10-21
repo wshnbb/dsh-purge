@@ -4,7 +4,11 @@
 
 <h1 align="center">⚔️ DeepSeek Harness 网络安全红队工具（dsh-purge）</h1>
 
-<p align="center"><strong>Version 1.1.71</strong></p>
+<p align="center"><strong>Version 1.1.71-wshnbb.1</strong></p>
+
+> 本分支为 wshnbb 的 Windows 官方桌面 0.2.1-rc.2 适配版，修复工作目录变量、提示词过滤和备份写入问题。原作者署名与许可保留，详见 [本分支变更](LOCAL-CHANGES.md)。
+>
+> 从兼容分支安装：`dsh plugin --profile desktop add https://github.com/wshnbb/dsh-purge/archive/refs/heads/compat/dsh-0.2.1-rc.2.tar.gz`。`master` 保留原始内容。下方保留的原作者安装链接已经失效，不要使用。安装后退出托盘并重新打开，再在 dsh-purge 面板内应用。离线检查已通过，尚不代表 Windows 实机补丁已全部生效。
 
 <p align="center">
   <em>DeepSeek Harness 破甲：让所有模型都能破甲，不同模型可换不同提示词；默认提示词面向国模「小码酱」。Jailbreak for every model — swap prompts per model. 求 Star 收藏 ⭐ 如要二开，请查看署名要求部分</em>
