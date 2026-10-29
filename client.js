@@ -4067,7 +4067,7 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
 
     const api = (req) => fetch('/redteam/api', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', 'x-dsh-purge-client': '1' },
       body: JSON.stringify(req),
     }).then(async (res) => {
       const text = await res.text().catch(() => '')
@@ -5602,7 +5602,6 @@ body[data-ds-dark-theme] .dshp-rewind-item span{color:var(--dsw-alias-label-tert
           a.href = url
           a.download = 'report-' + String(label || 'score').replace(/[^\w.\-]/g, '_') + '.md'
           a.click()
-          /* 立刻 revoke 会在部分浏览器里让 click 启动的下载断流,延后一拍 */
           setTimeout(() => { try { URL.revokeObjectURL(url) } catch { /* ignore */ } }, 1000)
           setMsg({ ok: '已下载：' + label })
         } catch (e) { setMsg({ err: '下载失败：' + ((e && e.message) || e) }) }

@@ -1,0 +1,27 @@
+name: Verify compatibility branch
+on:
+  push:
+    branches: [compat/dsh-0.2.1-rc.2]
+  pull_request:
+    branches: [compat/dsh-0.2.1-rc.2]
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: ['22.13.0', '24']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node scripts/check-syntax.mjs
+      - run: npm test
+      - run: node scripts/build-client.mjs
+      - run: git diff --exit-code -- client.js
