@@ -179,7 +179,9 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"own.save": "保存名单",
 			"saved.own": "已保存自己的服务器",
 			"saved.own.dropped": "已保存。有 {n} 行不是单个 IP 或主机名，已丢掉",
-			"metric.purged": "已写入",
+			"metric.purged": "已就绪",
+			"metric.supportedShort": "已支持 {n}",
+			"metric.groupCount": "{applied} / {total} 组",
 			"metric.purged.skip": "已应用，另有 {n} 项当前无需处理",
 			"metric.pendingShort": "待处理 {n}",
 			"metric.unmatchedShort": "需检查 {n}",
@@ -198,9 +200,8 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"status.unmatched": "需检查",
 			"status.skipped": "无需处理",
 			"status.partial": "部分生效",
-			"status.superseded": "新版已替代",
+			"status.superseded": "已支持",
 			"apply.hint": "修改提示词后先保存，再点击「应用」，按提示完成重启。",
-			"warn.maintenance": "插件尚未完全就绪，请点击「应用」；若仍无法生效，请重启客户端。",
 			"warn.noRoot": "未定位到当前宿主的 @deepseek-ai，清洗不会生效。请完全退出后再打开本宿主，在本页点「应用」。桌面端安装目录可以是任意盘符；目录名带 DeepseekHarness / DeepSeek Harness 均可。",
 			"warn.noRoot.desktop": "官方客户端的代码在 app.asar 里。点「应用」会解开并自动重启，不用另跑脚本。若一直显示还没定位，先完全退出客户端再开，再点「应用」。第三方 DSH Desktop 直接点「应用」。",
 			"unpack.restarting": "补丁已写入。点「重启」后客户端会自己重新打开。",
@@ -526,7 +527,9 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"own.save": "Save list",
 			"saved.own": "Own servers saved",
 			"saved.own.dropped": "Saved. {n} lines were not a single IP or hostname and were dropped",
-			"metric.purged": "Written",
+			"metric.purged": "Ready",
+			"metric.supportedShort": "Built in {n}",
+			"metric.groupCount": "{applied} / {total} groups",
 			"metric.purged.skip": "Applied. {n} items need no action",
 			"metric.pendingShort": "Pending {n}",
 			"metric.unmatchedShort": "No match {n}",
@@ -545,9 +548,8 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"status.unmatched": "No match",
 			"status.skipped": "Skipped",
 			"status.partial": "Partially applied",
-			"status.superseded": "Superseded by host",
+			"status.superseded": "Built in",
 			"apply.hint": "Save prompt changes, then click Apply and restart when prompted.",
-			"warn.maintenance": "The plugin is not fully ready. Click Apply; if needed, restart the client.",
 			"warn.noRoot": "Could not find this host’s @deepseek-ai tree, so Apply will not patch anything. Fully quit and reopen this host, then Apply here. Desktop may live on any drive; folder names like DeepseekHarnessDesktop or DeepSeek Harness are fine.",
 			"warn.noRoot.desktop": "Official Harness keeps its code in app.asar. Apply unpacks it and restarts the app. If this page stays “not found”, fully quit the client, reopen it, then Apply again. Third-party DSH Desktop: just Apply.",
 			"unpack.restarting": "Patches are written. Click Restart and the client opens again by itself.",
@@ -1069,7 +1071,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			if (st === "applied" || st === "already") return "ok";
 			if (st === "pending") return "wait";
 			if (st === "unmatched" || st === "partial") return "bad";
-			if (st === "superseded") return "miss";
+			if (st === "superseded") return "ok";
 			if (st === "na") return "ok";
 			if (st === "missing_file" || st === "skipped" || st === "unlocated" || st === "off") return "miss";
 			return "bad";
@@ -1122,8 +1124,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 		const GROUP_ORDER = ["prompt", "code", "tools", "compat", "dsh20"];
 
 		/* __DSH_PURGE_PATCH_UI_BEGIN__ */
-		const PATCH_FEATURES = {"1":{"title":"自定义提示词优先","description":"减少默认免责声明对任务说明的干扰，让自定义提示词正常参与对话。"},"2":{"title":"自定义提示词优先","description":"减少默认免责声明对任务说明的干扰，让自定义提示词正常参与对话。"},"3":{"title":"自定义提示词优先","description":"减少默认免责声明对任务说明的干扰，让自定义提示词正常参与对话。"},"4":{"title":"自定义角色","description":"移除默认角色身份，使用你设置的角色与提示词。"},"5":{"title":"自动执行提示","description":"让工具说明与自动审批设置保持一致，减少重复询问。"},"6":{"title":"沙箱文件写入","description":"允许工具写入文件，扩大任务可修改的范围。"},"7":{"title":"默认沙箱权限","description":"新任务默认使用完整访问权限，仍可在宿主界面切换。"},"8":{"title":"自动审批","description":"默认自动批准工具调用，减少执行过程中的确认步骤。"},"9":{"title":"自动审批","description":"默认自动批准工具调用，减少执行过程中的确认步骤。"},"10":{"title":"自动审批","description":"默认自动批准工具调用，减少执行过程中的确认步骤。"},"11":{"title":"自动执行提示","description":"让工具说明与自动审批设置保持一致，减少重复询问。"},"12":{"title":"自动执行提示","description":"让工具说明与自动审批设置保持一致，减少重复询问。"},"13":{"title":"直接扩大权限","description":"任务需要更大权限时，可跳过逐级申请的步骤。"},"14":{"title":"权限升级授权","description":"审批服务不可用时继续处理权限升级请求。"},"15":{"title":"沙箱范围放宽","description":"减少沙箱对工具运行范围的限制。"},"16":{"title":"工作区外文件访问","description":"允许访问工作区之外的文件，操作范围会扩大。"},"17":{"title":"直接写入与编辑","description":"写入和编辑文件无需先执行读取；删除检查仍保留。"},"18":{"title":"连续调用工具","description":"允许重复执行同一工具，减少重复调用提醒造成的中断。"},"19":{"title":"保留工具结果","description":"减少工具输出的自动裁剪，保留更多执行结果供模型使用。"},"22":{"title":"读取较大文件","description":"提高单次文件读取上限，减少分段读取。"},"23":{"title":"多层子代理","description":"允许更深的子任务拆分，子代理嵌套上限提高到 10 层。"},"24":{"title":"网页抓取","description":"允许预设中的网页工具获取页面内容。"},"25":{"title":"保留自定义身份","description":"移除默认身份声明，同时保留官方功能说明。"},"26":{"title":"极简模式提示词","description":"让极简模式也能使用自定义提示词与角色设置。"},"28":{"title":"梁神提示词协作","description":"与梁神一起使用时，保留本插件的提示词内容。"},"29":{"title":"使用网页内容","description":"允许把外部网页内容用于后续任务和工具处理。"},"30":{"title":"Hooks 拦截控制","description":"允许放行 Hooks 的拦截结果；可在本页开关中恢复原行为。"},"31":{"title":"Hooks 拦截控制","description":"允许放行 Hooks 的拦截结果；可在本页开关中恢复原行为。"},"32":{"title":"网页环境提示","description":"减少网页端的默认身份与另开服务器限制，便于使用自定义提示词。"},"33":{"title":"终端执行提示","description":"终端受限时允许继续尝试可用的执行方式。"},"34":{"title":"沙箱操作提示","description":"减少沙箱权限说明中的重复审批要求。"},"35":{"title":"权限升级继续执行","description":"扩大自动授权范围；升级结果为拒绝、取消或不可用时也可能继续。"},"36":{"title":"文件工具权限升级","description":"允许文件工具请求更大的访问范围。"},"37":{"title":"子代理权限调整","description":"减少对子代理扩大执行权限的额外限制。"},"40":{"title":"完整模式提示词","description":"让完整模式保留自定义提示词。"},"43":{"title":"预设角色设置","description":"在内置预设中移除默认身份，保留预设的功能说明。"},"47":{"title":"OAuth 对话身份","description":"使用 Anthropic OAuth 时，避免额外加入 Claude Code 身份声明。"},"48":{"title":"终端文件整理","description":"减少终端删除、移动文件时由工具说明引入的额外确认。"},"49":{"title":"OAuth 客户端标识","description":"OAuth 请求不再附带模拟命令行客户端的身份说明。"},"50":{"title":"跨会话引用","description":"减少引用其它会话内容时的额外限制。"},"51":{"title":"新会话权限继承","description":"已启用完整访问权限时，新会话沿用该设置。"},"52":{"title":"会话记录隐私","description":"默认不向官方模型接口上传额外的会话日志。"},"53":{"title":"网页环境提示","description":"减少网页端的默认身份与另开服务器限制，便于使用自定义提示词。"},"54":{"title":"交付文件展示","description":"减少交付物说明中的限制，让模型可以展示生成的文件。"},"55":{"title":"当前提示词生效","description":"每一步使用当前系统提示词，避免继续沿用旧内容。"},"56":{"title":"回退对话","description":"回退时只撤回选中的那一轮，保留其余对话。"},"57":{"title":"第三方模型提示词","description":"根据接口类型选择系统提示词角色，提高第三方模型兼容性。"},"58":{"title":"回退后继续对话","description":"回退控制信息不发送给模型，避免影响后续对话。"},"59":{"title":"工具自动审查","description":"减少自动审查对工具执行的拦截。"},"60":{"title":"批量代码执行","description":"减少代码执行工具说明中的额外审批要求。"},"61":{"title":"沙箱任务执行","description":"减少只读策略对任务的阻断，允许扩大执行权限。"},"62":{"title":"审批通道不可用时继续","description":"没有可用审批通道时允许执行；用户明确拒绝与取消仍有效。"},"63":{"title":"从计划转入实施","description":"用户要求开始实施时，允许在计划模式下继续执行。"},"64":{"title":"Hooks 对话处理","description":"减少 Hooks 生成的额外插话与整轮中断。"},"65":{"title":"Hooks 对话处理","description":"减少 Hooks 生成的额外插话与整轮中断。"},"69":{"title":"DeepSeek 流式对话","description":"沿用官方的流式历史处理方式，提高连续对话稳定性。"},"70":{"title":"极简模式联网","description":"极简模式不再预先把终端描述为无法联网。"},"71":{"title":"梁神角色设置","description":"移除梁神中的默认身份声明，保留该模式的工作要求。"},"72":{"title":"当前系统提示词","description":"向 Messages 接口发送当前生效的系统提示词。"},"73":{"title":"极简模式终端说明","description":"移除极简终端中多余的镜像说明，减少对执行方式的干扰。"},"75":{"title":"回退任务进度","description":"撤回对话步骤时，同步撤回对应任务的完成状态。"},"76":{"title":"自建预设角色","description":"使用自建 unrestricted 预设时，移除其中的默认身份声明。"},"77":{"title":"同步回退记录","description":"回退后立即更新当前会话，移除已撤回的消息。"},"85":{"title":"对话中插话","description":"执行期间收到插话时，按插话处理，而不是排到后续对话。"},"86":{"title":"插话与排队","description":"区分立即插话和排队消息，让补充要求在合适的时机生效。"},"89":{"title":"系统提示词独立发送","description":"将系统提示词与普通对话分开，避免被当作历史消息。"},"90":{"title":"OpenAI 接口提示词","description":"通过 OpenAI 兼容接口的系统消息发送自定义提示词。"},"91":{"title":"Anthropic 接口提示词","description":"通过 Anthropic 接口的系统提示词字段发送自定义内容。"},"92":{"title":"子代理继承提示词","description":"子代理创建时继承当前提示词与父会话权限。"}};
-		const PATCH_MAINTENANCE_IDS = new Set([21,38,39,42,45,46,66,67,68,74,78,80,82,83,84,87,88]);
+		const PATCH_FEATURES = {"1":{"title":"自定义提示词优先","description":"减少默认免责声明对任务说明的干扰，让自定义提示词正常参与对话。"},"2":{"title":"自定义提示词优先","description":"减少默认免责声明对任务说明的干扰，让自定义提示词正常参与对话。"},"3":{"title":"自定义提示词优先","description":"减少默认免责声明对任务说明的干扰，让自定义提示词正常参与对话。"},"4":{"title":"自定义角色","description":"移除默认角色身份，使用你设置的角色与提示词。"},"5":{"title":"自动执行提示","description":"让工具说明与自动审批设置保持一致，减少重复询问。"},"6":{"title":"沙箱文件写入","description":"允许工具写入文件，扩大任务可修改的范围。"},"7":{"title":"默认沙箱权限","description":"新任务默认使用完整访问权限，仍可在宿主界面切换。"},"8":{"title":"自动审批","description":"默认自动批准工具调用，减少执行过程中的确认步骤。"},"9":{"title":"自动审批","description":"默认自动批准工具调用，减少执行过程中的确认步骤。"},"10":{"title":"自动审批","description":"默认自动批准工具调用，减少执行过程中的确认步骤。"},"11":{"title":"自动执行提示","description":"让工具说明与自动审批设置保持一致，减少重复询问。"},"12":{"title":"自动执行提示","description":"让工具说明与自动审批设置保持一致，减少重复询问。"},"13":{"title":"直接扩大权限","description":"任务需要更大权限时，可跳过逐级申请的步骤。"},"14":{"title":"权限升级授权","description":"审批服务不可用时继续处理权限升级请求。"},"15":{"title":"沙箱范围放宽","description":"减少沙箱对工具运行范围的限制。"},"16":{"title":"工作区外文件访问","description":"允许访问工作区之外的文件，操作范围会扩大。"},"17":{"title":"直接写入与编辑","description":"写入和编辑文件无需先执行读取；删除检查仍保留。"},"18":{"title":"连续调用工具","description":"允许重复执行同一工具，减少重复调用提醒造成的中断。"},"19":{"title":"保留工具结果","description":"减少工具输出的自动裁剪，保留更多执行结果供模型使用。"},"21":{"title":"终端等待时间","description":"恢复终端工具原有的等待时间，避免一直等待尚未结束的命令。"},"22":{"title":"读取较大文件","description":"提高单次文件读取上限，减少分段读取。"},"23":{"title":"多层子代理","description":"允许更深的子任务拆分，子代理嵌套上限提高到 10 层。"},"24":{"title":"网页抓取","description":"允许预设中的网页工具获取页面内容。"},"25":{"title":"保留自定义身份","description":"移除默认身份声明，同时保留官方功能说明。"},"26":{"title":"极简模式提示词","description":"让极简模式也能使用自定义提示词与角色设置。"},"28":{"title":"梁神提示词协作","description":"与梁神一起使用时，保留本插件的提示词内容。"},"29":{"title":"使用网页内容","description":"允许把外部网页内容用于后续任务和工具处理。"},"30":{"title":"Hooks 拦截控制","description":"允许放行 Hooks 的拦截结果；可在本页开关中恢复原行为。"},"31":{"title":"Hooks 拦截控制","description":"允许放行 Hooks 的拦截结果；可在本页开关中恢复原行为。"},"32":{"title":"网页环境提示","description":"减少网页端的默认身份与另开服务器限制，便于使用自定义提示词。"},"33":{"title":"终端执行提示","description":"终端受限时允许继续尝试可用的执行方式。"},"34":{"title":"沙箱操作提示","description":"减少沙箱权限说明中的重复审批要求。"},"35":{"title":"权限升级继续执行","description":"扩大自动授权范围；升级结果为拒绝、取消或不可用时也可能继续。"},"36":{"title":"文件工具权限升级","description":"允许文件工具请求更大的访问范围。"},"37":{"title":"子代理权限调整","description":"减少对子代理扩大执行权限的额外限制。"},"38":{"title":"旧版角色兼容","description":"兼容旧版角色配置，保证相关插件可以正常启动会话。"},"39":{"title":"会话记忆兼容","description":"让会话记忆插件可以在旧版会话中提供摘要与回忆。"},"40":{"title":"完整模式提示词","description":"让完整模式保留自定义提示词。"},"42":{"title":"扩展插件兼容","description":"兼容使用旧版设置接口的扩展插件。"},"43":{"title":"预设角色设置","description":"在内置预设中移除默认身份，保留预设的功能说明。"},"45":{"title":"桌面更新","description":"安装已下载的桌面更新，兼容中文 Windows 环境。"},"46":{"title":"桌面更新","description":"安装已下载的桌面更新，兼容中文 Windows 环境。"},"47":{"title":"OAuth 对话身份","description":"使用 Anthropic OAuth 时，避免额外加入 Claude Code 身份声明。"},"48":{"title":"终端文件整理","description":"减少终端删除、移动文件时由工具说明引入的额外确认。"},"49":{"title":"OAuth 客户端标识","description":"OAuth 请求不再附带模拟命令行客户端的身份说明。"},"50":{"title":"跨会话引用","description":"减少引用其它会话内容时的额外限制。"},"51":{"title":"新会话权限继承","description":"已启用完整访问权限时，新会话沿用该设置。"},"52":{"title":"会话记录隐私","description":"默认不向官方模型接口上传额外的会话日志。"},"53":{"title":"网页环境提示","description":"减少网页端的默认身份与另开服务器限制，便于使用自定义提示词。"},"54":{"title":"交付文件展示","description":"减少交付物说明中的限制，让模型可以展示生成的文件。"},"55":{"title":"当前提示词生效","description":"每一步使用当前系统提示词，避免继续沿用旧内容。"},"56":{"title":"回退对话","description":"回退时只撤回选中的那一轮，保留其余对话。"},"57":{"title":"第三方模型提示词","description":"根据接口类型选择系统提示词角色，提高第三方模型兼容性。"},"58":{"title":"回退后继续对话","description":"回退控制信息不发送给模型，避免影响后续对话。"},"59":{"title":"工具自动审查","description":"减少自动审查对工具执行的拦截。"},"60":{"title":"批量代码执行","description":"减少代码执行工具说明中的额外审批要求。"},"61":{"title":"沙箱任务执行","description":"减少只读策略对任务的阻断，允许扩大执行权限。"},"62":{"title":"审批通道不可用时继续","description":"没有可用审批通道时允许执行；用户明确拒绝与取消仍有效。"},"63":{"title":"从计划转入实施","description":"用户要求开始实施时，允许在计划模式下继续执行。"},"64":{"title":"Hooks 对话处理","description":"减少 Hooks 生成的额外插话与整轮中断。"},"65":{"title":"Hooks 对话处理","description":"减少 Hooks 生成的额外插话与整轮中断。"},"66":{"title":"连续对话稳定性","description":"处理缺少部分提示词内容的情况，减少后续对话出现内部错误。"},"67":{"title":"连续对话恢复","description":"处理模型返回空消息的情况，避免整轮对话意外中断。"},"68":{"title":"回退后对话恢复","description":"回退后遇到缺少内容的消息时，仍能继续后续对话。"},"69":{"title":"DeepSeek 流式对话","description":"沿用官方的流式历史处理方式，提高连续对话稳定性。"},"70":{"title":"极简模式联网","description":"极简模式不再预先把终端描述为无法联网。"},"71":{"title":"梁神角色设置","description":"移除梁神中的默认身份声明，保留该模式的工作要求。"},"72":{"title":"当前系统提示词","description":"向 Messages 接口发送当前生效的系统提示词。"},"73":{"title":"极简模式终端说明","description":"移除极简终端中多余的镜像说明，减少对执行方式的干扰。"},"74":{"title":"首次发送提示词","description":"首次发送消息时也使用当前设置的自定义提示词。"},"75":{"title":"回退任务进度","description":"撤回对话步骤时，同步撤回对应任务的完成状态。"},"76":{"title":"自建预设角色","description":"使用自建 unrestricted 预设时，移除其中的默认身份声明。"},"77":{"title":"同步回退记录","description":"回退后立即更新当前会话，移除已撤回的消息。"},"78":{"title":"补丁自动恢复","description":"补丁文件丢失时，从本地备份自动恢复。"},"80":{"title":"极简工具配置","description":"使用官方极简工具配置，清理旧版插件额外添加的工具。"},"82":{"title":"桌面插件加载","description":"从桌面快捷方式启动时，确保加载桌面插件配置。"},"83":{"title":"正常退出与重启","description":"正常退出或重启桌面客户端时，避免弹出误报的崩溃提示。"},"84":{"title":"正常退出与重启","description":"正常退出或重启桌面客户端时，避免弹出误报的崩溃提示。"},"85":{"title":"对话中插话","description":"执行期间收到插话时，按插话处理，而不是排到后续对话。"},"86":{"title":"插话与排队","description":"区分立即插话和排队消息，让补充要求在合适的时机生效。"},"87":{"title":"当前模式提示词","description":"首次对话使用当前模式的提示词，保持模式切换生效。"},"88":{"title":"提示词注入一致性","description":"清理旧版重复注入方式，统一使用当前会话的提示词。"},"89":{"title":"系统提示词独立发送","description":"将系统提示词与普通对话分开，避免被当作历史消息。"},"90":{"title":"OpenAI 接口提示词","description":"通过 OpenAI 兼容接口的系统消息发送自定义提示词。"},"91":{"title":"Anthropic 接口提示词","description":"通过 Anthropic 接口的系统提示词字段发送自定义内容。"},"92":{"title":"子代理继承提示词","description":"子代理创建时继承当前提示词与父会话权限。"}};
 		/* __DSH_PURGE_PATCH_UI_END__ */
 
 		function patchRowsOf(state) {
@@ -1146,7 +1147,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 					title: "",
 					description: PATCH_FEATURES[Number(id)]?.description || "",
 				}));
-			return rows.filter((r) => r.st && r.st !== "na" && r.st !== "superseded" && Number.isFinite(r.id) && !r.ids.some(id => PATCH_MAINTENANCE_IDS.has(id)));
+			return rows.filter((r) => r.st && r.st !== "na" && Number.isFinite(r.id));
 		}
 
 		function patchTitle(t, state, r) {
@@ -1162,13 +1163,14 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 		}
 
 		function tallyPatches(rows) {
-			const out = { applied: 0, pending: 0, unmatched: 0, skipped: 0, total: 0 };
+			const out = { applied: 0, supported: 0, pending: 0, unmatched: 0, skipped: 0, total: 0, ready: 0 };
 			for (const row of rows || []) {
 				out.total += 1;
-				if (row.st === "applied" || row.st === "already") out.applied += 1;
+				if (row.st === "applied" || row.st === "already") { out.applied += 1; out.ready += 1; }
+				else if (row.st === "superseded") { out.supported += 1; out.ready += 1; }
 				else if (row.st === "pending") out.pending += 1;
 				else if (row.st === "unmatched" || row.st === "partial") out.unmatched += 1;
-				else if (["skipped", "missing_file", "superseded", "off"].includes(row.st)) out.skipped += 1;
+				else if (["skipped", "missing_file", "off"].includes(row.st)) { out.skipped += 1; out.ready += 1; }
 				else out.unmatched += 1;
 			}
 			return out;
@@ -1191,6 +1193,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 				if (!rows.length) return null;
 				const tally = tallyPatches(rows);
 				const notes = [];
+				if (tally.supported) notes.push(t("metric.supportedShort", { n: tally.supported }));
 				if (tally.pending) notes.push(t("metric.pendingShort", { n: tally.pending }));
 				if (tally.unmatched) notes.push(t("metric.unmatchedShort", { n: tally.unmatched }));
 				if (tally.skipped) notes.push(t("metric.skipShort", { n: tally.skipped }));
@@ -1203,7 +1206,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 						onClick: () => setOpen((prev) => Object.assign({}, prev, { [key]: !prev[key] })),
 					},
 						h("strong", null, t("group." + key)),
-						h("span", { className: "dshp-count" }, tally.applied + "/" + tally.total + (notes.length ? " · " + notes.join(" · ") : "")),
+						h("span", { className: "dshp-count" }, tally.ready + "/" + tally.total + (notes.length ? " · " + notes.join(" · ") : "")),
 					),
 					expanded ? h("table", { className: "dshp-table" },
 						h("thead", null, h("tr", null,
@@ -1871,10 +1874,10 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			const patchesLost = !located && !!(s && s.patches_lost);
 			const tally = located ? tallyPatches(patchRowsOf(s)) : { applied: 0, pending: 0, unmatched: 0, skipped: 0, total: 0 };
 			const total = tally.total;
-			const maintenanceNeedsAttention = s && [...PATCH_MAINTENANCE_IDS].some(id => ["pending", "partial", "unmatched", "read_error"].includes(s.patch_status?.[id]));
-			const applied = tally.applied;
-			const pct = located && total ? Math.round((applied / total) * 100) : 0;
+			const ready = tally.ready;
+			const pct = located && total ? Math.round((ready / total) * 100) : 0;
 			const metricNotes = [];
+			if (tally.supported) metricNotes.push(t("metric.supportedShort", { n: tally.supported }));
 			if (tally.pending) metricNotes.push(t("metric.pendingShort", { n: tally.pending }));
 			if (tally.unmatched) metricNotes.push(t("metric.unmatchedShort", { n: tally.unmatched }));
 			if (tally.skipped) metricNotes.push(t("metric.skipShort", { n: tally.skipped }));
@@ -1962,7 +1965,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 				),
 				s ? h("div", { className: "dshp-metrics" },
 					h("div", { className: "dshp-metric" },
-						h("b", null, located ? (applied + " / " + total) : (patchesLost ? t("metric.lost.count") : (sealedReady ? t("metric.sealed.count") : t("metric.unlocated.count")))),
+						h("b", null, located ? t("metric.groupCount", { applied: ready, total }) : (patchesLost ? t("metric.lost.count") : (sealedReady ? t("metric.sealed.count") : t("metric.unlocated.count")))),
 						h("span", null, !located ? (patchesLost ? t("metric.lost") : (sealedReady ? t("metric.sealed") : t("metric.unlocated"))) : (metricNotes.length ? metricNotes.join(" · ") : t("metric.purged"))),
 					),
 					h("div", { className: "dshp-metric" },
@@ -2010,7 +2013,6 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 					),
 				) : null,
 				h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-mute)", fontSize: 12 } }, t("apply.hint")),
-				maintenanceNeedsAttention ? h("p", { role: "status", className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-danger, #c44)", fontSize: 12 } }, t("warn.maintenance")) : null,
 				s && !s.ai_base ? h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-danger, #c44)", fontSize: 12 } }, hostText(t, "warn.noRoot", hostSurface)) : null,
 				s && s.ai_base && s.override_status === "missing" ? h("p", { className: "dshp-hint", style: { margin: "8px 0 0", color: "var(--dshp-mute)", fontSize: 12 } }, t("warn.noInject")) : null,
 				askRestart ? h(RestartAsk, {

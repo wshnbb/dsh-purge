@@ -7,7 +7,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { PATCH_FEATURES, PATCH_MAINTENANCE_IDS } from "../lib/patch-presentation.js";
+import { PATCH_FEATURES } from "../lib/patch-presentation.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const drillSrc = join(root, "lib", "redteam", "client.js");
@@ -69,7 +69,7 @@ const uiEnd = "/* __DSH_PURGE_PATCH_UI_END__ */";
 const uiStart = client.indexOf(uiBegin);
 const uiStop = client.indexOf(uiEnd);
 if (uiStart < 0 || uiStop < uiStart) throw new Error("patch presentation markers missing");
-client = client.slice(0, uiStart) + uiBegin + "\n\t\tconst PATCH_FEATURES = " + JSON.stringify(PATCH_FEATURES) + ";\n\t\tconst PATCH_MAINTENANCE_IDS = new Set(" + JSON.stringify(PATCH_MAINTENANCE_IDS) + ");\n\t\t" + uiEnd + client.slice(uiStop + uiEnd.length);
+client = client.slice(0, uiStart) + uiBegin + "\n\t\tconst PATCH_FEATURES = " + JSON.stringify(PATCH_FEATURES) + ";\n\t\t" + uiEnd + client.slice(uiStop + uiEnd.length);
 if (!client.includes(BEGIN) || !client.includes(END)) {
 	throw new Error("client.js missing drill markers; run patch-client-dock.mjs first");
 }

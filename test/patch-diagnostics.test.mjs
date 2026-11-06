@@ -50,16 +50,17 @@ test('merged rows retain identifiers and unresolved states are not counted ready
   const rows = groupPatchesForDisplay(ALL_PATCHES.filter(p => ids.includes(p.id)), {
     32: 'applied', 53: 'pending', 74: 'superseded', 87: 'superseded', 17: 'partial',
   }, 'desktop', { 53: { reason: 'pending detail' } })
-  assert.equal(rows.length, 2)
+  assert.equal(rows.length, 3)
   assert.deepEqual(rows.find(p => p.id === 32).ids, [32, 53])
   assert.ok(rows.find(p => p.id === 32).description.length > 0)
   assert.equal(rows.find(p => p.id === 32).reason, undefined)
-  assert.ok(rows.every(p => !p.ids.includes(74) && !p.ids.includes(87)))
-  assert.deepEqual(tallyDisplayPatches(rows), { applied: 0, pending: 1, unmatched: 1, skipped: 0, total: 2, ready: 0 })
+  assert.deepEqual(rows.find(p => p.id === 74).ids, [74, 87])
+  assert.deepEqual(tallyDisplayPatches(rows), { applied: 0, supported: 1, pending: 1, unmatched: 1, skipped: 0, total: 3, ready: 1 })
   const status = { 52: 'applied', 67: 'applied', 78: 'applied' }
   const product = groupPatchesForDisplay(ALL_PATCHES.filter(p => p.id in status), status, 'desktop')
-  assert.deepEqual(product.map(p => p.id), [52])
+  assert.deepEqual(product.map(p => p.id), [52, 67, 78])
   assert.ok(product[0].description.includes('上传'))
+  assert.ok(product.every(p => p.description && !p.reason))
   assert.deepEqual(status, { 52: 'applied', 67: 'applied', 78: 'applied' })
 })
 
