@@ -10,3 +10,5 @@ Derivative works must retain this NOTICE and attribution.
 Bundled skills under skills/redteam/ originate from the dsh-purge upstream project (YuJunZhiXue/dsh-purge), retrieved via the mirror mmparko/dsh-purge.
 
 Custom fork maintenance port (2026-11-06): the rewind portal was adapted from upstream 1.1.92, commit fc6e787. Original fork files retain their existing license; this NOTICE does not relicense the entire fork.
+
+Additional custom maintenance (wshnbb.4): profile repair, backup integrity, working-directory propagation and restart recovery follow the upstream 1.1.92 maintenance changes, adapted to the custom bundle and current DSH runtime. Prompt content and policy patch definitions were not imported.
