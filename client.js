@@ -1139,7 +1139,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 					title: "",
 						reason: state.patch_diagnostics?.[id]?.reason || "",
 				}));
-			return rows.filter((r) => r.st && r.st !== "na" && Number.isFinite(r.id));
+            return rows.filter((r) => r.st && r.st !== "na" && r.st !== "superseded" && Number.isFinite(r.id));
 		}
 
 		function patchIdLabel(r) {
