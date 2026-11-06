@@ -193,6 +193,7 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"metric.bak.no": "无备份",
 			"metric.bak.hint": "备份",
 			"table.patch": "项目",
+			"patch.descriptionHint": "展开查看功能简介",
 			"table.status": "状态",
 			"status.applied": "已应用",
 			"status.off": "已关闭",
@@ -541,6 +542,7 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"metric.bak.no": "No backup",
 			"metric.bak.hint": "Backup",
 			"table.patch": "Item",
+			"patch.descriptionHint": "Expand the feature description",
 			"table.status": "Status",
 			"status.applied": "Applied",
 			"status.off": "Off",
@@ -856,6 +858,12 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 .dshp-table tr:last-child td{border-bottom:0}
 .dshp-table tr.is-on td{background:var(--dshp-accent-soft)}
 .dshp-id{font-family:var(--dshp-mono);opacity:.75;width:42px}
+.dshp-patch-info{min-width:0}
+.dshp-patch-info summary{cursor:pointer;line-height:1.6;overflow-wrap:anywhere}
+.dshp-patch-info summary::marker{color:var(--dshp-mute)}
+.dshp-patch-info summary:focus-visible{outline:2px solid var(--dshp-accent);outline-offset:3px;border-radius:2px}
+.dshp-patch-description{margin:6px 0 0 14px;max-width:60ch;color:var(--dshp-mute);font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.dshp-table td:last-child{white-space:nowrap;width:1%}
 .dshp-actions{text-align:right;white-space:nowrap}
 .dshp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .dshp-row+.dshp-row{margin-top:10px}
@@ -1150,6 +1158,10 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			return rows.filter((r) => r.st && r.st !== "na" && Number.isFinite(r.id));
 		}
 
+		function patchIdLabel(row) {
+			return (row.ids || [row.id]).map(id => "#" + id).join("/");
+		}
+
 		function patchTitle(t, state, r) {
 			if (r && PATCH_FEATURES[r.id]) return PATCH_FEATURES[r.id].title;
 			if (r && r.title) return r.title;
@@ -1210,11 +1222,17 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 					),
 					expanded ? h("table", { className: "dshp-table" },
 						h("thead", null, h("tr", null,
+							h("th", null, "#"),
 							h("th", null, t("table.patch")),
 							h("th", null, t("table.status")),
 						)),
 						h("tbody", null, rows.map((r) => h("tr", { key: r.ids ? r.ids.join("-") : r.id },
-							h("td", null, patchTitle(t, state, r), r.description ? h("div", { className: "dshp-patch-description", style: { marginTop: 4, fontSize: 12, opacity: 0.8 } }, r.description) : null),
+							h("td", { className: "dshp-id" }, patchIdLabel(r)),
+							h("td", null, r.description
+								? h("details", { className: "dshp-patch-info" },
+									h("summary", { title: t("patch.descriptionHint") }, patchTitle(t, state, r)),
+									h("div", { className: "dshp-patch-description" }, r.description))
+								: patchTitle(t, state, r)),
 							h("td", null, h(Pill, { value: r.st })),
 						))),
 					) : null,
