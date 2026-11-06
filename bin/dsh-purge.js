@@ -24,11 +24,15 @@ function printStatus(state) {
   out.push(`  注入文件       ${state.override_path}`);
   out.push(`  注入状态       ${state.override_status}`);
   out.push("");
-  out.push(`  补丁 ${state.patches_applied}/${core.ALL_PATCHES.length} 已清洗, ${state.patches_pending} 待清洗`);
-  for (const p of core.ALL_PATCHES) {
-    const s = state.patch_status[p.id];
+  const rows = state.display_patches || core.groupPatchesForDisplay(core.ALL_PATCHES, state.patch_status || {});
+  const tally = core.tallyDisplayPatches(rows);
+  out.push(`  补丁 ${tally.applied}/${tally.total} 已应用, ${tally.pending} 待应用, ${tally.unmatched} 需检查`);
+  for (const p of rows) {
+    const s = p.status;
     const mark = s === "applied" ? "✓" : s === "pending" ? "✗" : "·";
-    out.push(`    ${mark} [#${String(p.id).padEnd(2)}] ${p.name.padEnd(30)} ${p.layer}/${p.layer_en} — ${s}`);
+    const ids = (p.ids || [p.id]).join("/");
+    out.push(`    ${mark} [#${ids}] ${p.title} — ${s}`);
+    if (p.reason) out.push(`      ${p.reason}`);
   }
   out.push("");
   out.push(`  shim: dsh.cmd=${state.shim_cmd}  dsh.ps1=${state.shim_ps1}  dsh=${state.shim_bin}`);

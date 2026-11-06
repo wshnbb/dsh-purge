@@ -180,10 +180,10 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"saved.own": "已保存自己的服务器",
 			"saved.own.dropped": "已保存。有 {n} 行不是单个 IP 或主机名，已丢掉",
 			"metric.purged": "已写入",
-			"metric.purged.skip": "已写入。跳过 {n} 项，本机没有这些文件",
+			"metric.purged.skip": "已写入。另有 {n} 项无需改动，原因见补丁明细",
 			"metric.pendingShort": "待处理 {n}",
 			"metric.unmatchedShort": "没对上 {n}",
-			"metric.skipShort": "跳过 {n}",
+			"metric.skipShort": "无需改动 {n}",
 			"metric.unlocated.count": "—",
 			"metric.shim": "shim",
 			"metric.shim.na": "本端不需要",
@@ -197,7 +197,9 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"status.pending": "待应用",
 			"status.unmatched": "没对上",
 			"status.skipped": "跳过",
-			"apply.hint": "没改提示词框不用点保存，默认就是这份，启动和应用会写进 prompt-inject.md。只有自己改过再点保存才会覆盖。点应用打补丁。待应用=原文还在。跳过=当前版本不需要或组件未安装。",
+			"status.partial": "部分生效",
+			"status.superseded": "新版已替代",
+			"apply.hint": "未修改提示词框时无需保存。待应用表示原代码可匹配；部分生效和没对上需要检查适配；新版已替代与跳过会列出具体原因，不计为已应用。",
 			"warn.noRoot": "未定位到当前宿主的 @deepseek-ai，清洗不会生效。请完全退出后再打开本宿主，在本页点「应用」。桌面端安装目录可以是任意盘符；目录名带 DeepseekHarness / DeepSeek Harness 均可。",
 			"warn.noRoot.desktop": "官方客户端的代码在 app.asar 里。点「应用」会解开并自动重启，不用另跑脚本。若一直显示还没定位，先完全退出客户端再开，再点「应用」。第三方 DSH Desktop 直接点「应用」。",
 			"unpack.restarting": "补丁已写入。点「重启」后客户端会自己重新打开。",
@@ -524,10 +526,10 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"saved.own": "Own servers saved",
 			"saved.own.dropped": "Saved. {n} lines were not a single IP or hostname and were dropped",
 			"metric.purged": "Written",
-			"metric.purged.skip": "Written. Skipped {n}; those files are not on this install",
+			"metric.purged.skip": "Written. {n} items need no change; see the reasons below",
 			"metric.pendingShort": "Pending {n}",
 			"metric.unmatchedShort": "No match {n}",
-			"metric.skipShort": "Skipped {n}",
+			"metric.skipShort": "No change {n}",
 			"metric.unlocated.count": "—",
 			"metric.shim": "shim",
 			"metric.shim.na": "Not needed here",
@@ -541,7 +543,9 @@ window.__ModuleLoader__.load({ id: "dsh-purge", factory: (require) => {
 			"status.pending": "Pending",
 			"status.unmatched": "No match",
 			"status.skipped": "Skipped",
-			"apply.hint": "If you did not edit the prompt box, do not save. The default is already used and is written to prompt-inject.md on start/apply. Save only after you change it. Apply writes host patches. Pending = original text still present. Skipped = not needed for this version or the component is not installed.",
+			"status.partial": "Partially applied",
+			"status.superseded": "Superseded by host",
+			"apply.hint": "Save only after editing the prompt. Pending means the source still matches. Partial and unmatched items need compatibility review. Superseded and skipped items show their reasons and are not counted as applied.",
 			"warn.noRoot": "Could not find this host’s @deepseek-ai tree, so Apply will not patch anything. Fully quit and reopen this host, then Apply here. Desktop may live on any drive; folder names like DeepseekHarnessDesktop or DeepSeek Harness are fine.",
 			"warn.noRoot.desktop": "Official Harness keeps its code in app.asar. Apply unpacks it and restarts the app. If this page stays “not found”, fully quit the client, reopen it, then Apply again. Third-party DSH Desktop: just Apply.",
 			"unpack.restarting": "Patches are written. Click Restart and the client opens again by itself.",
@@ -1062,7 +1066,8 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 		function statusKind(st) {
 			if (st === "applied" || st === "already") return "ok";
 			if (st === "pending") return "wait";
-			if (st === "unmatched") return "bad";
+			if (st === "unmatched" || st === "partial") return "bad";
+			if (st === "superseded") return "miss";
 			if (st === "na") return "ok";
 			if (st === "missing_file" || st === "skipped" || st === "unlocated" || st === "off") return "miss";
 			return "bad";
@@ -1073,6 +1078,8 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 			if (st === "off") return t("status.skipped");
 			if (st === "pending") return t("status.pending");
 			if (st === "unmatched") return t("status.unmatched");
+			if (st === "partial") return t("status.partial");
+			if (st === "superseded") return t("status.superseded");
 			if (st === "skipped") return t("status.skipped");
 			if (st === "missing_file") return t("skip");
 			if (st === "unlocated") return t("status.unlocated");
@@ -1122,6 +1129,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 					st: p.status || "missing_file",
 					layer: p.layer || "",
 					title: p.title || "",
+						reason: p.reason || "",
 				}))
 				: Object.keys(state.patch_status || {}).map((id) => ({
 					id: Number(id),
@@ -1129,6 +1137,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 					st: state.patch_status[id],
 					layer: "",
 					title: "",
+						reason: state.patch_diagnostics?.[id]?.reason || "",
 				}));
 			return rows.filter((r) => r.st && r.st !== "na" && Number.isFinite(r.id));
 		}
@@ -1155,8 +1164,9 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 				out.total += 1;
 				if (row.st === "applied" || row.st === "already") out.applied += 1;
 				else if (row.st === "pending") out.pending += 1;
-				else if (row.st === "unmatched") out.unmatched += 1;
-				else out.skipped += 1;
+				else if (row.st === "unmatched" || row.st === "partial") out.unmatched += 1;
+				else if (["skipped", "missing_file", "superseded", "off"].includes(row.st)) out.skipped += 1;
+				else out.unmatched += 1;
 			}
 			return out;
 		}
@@ -1200,7 +1210,7 @@ body:not([data-ds-dark-theme]) .dshp-auth-ops button.primary{background:var(--ds
 						)),
 						h("tbody", null, rows.map((r) => h("tr", { key: r.ids ? r.ids.join("-") : r.id },
 							h("td", { className: "dshp-id" }, patchIdLabel(r)),
-							h("td", null, patchTitle(t, state, r)),
+							h("td", null, patchTitle(t, state, r), r.reason ? h("div", { style: { marginTop: 4, fontSize: 12, opacity: 0.8 } }, r.reason) : null),
 							h("td", null, h(Pill, { value: r.st })),
 						))),
 					) : null,
