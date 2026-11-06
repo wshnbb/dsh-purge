@@ -52,9 +52,15 @@ test('merged rows retain identifiers and unresolved states are not counted ready
   }, 'desktop', { 53: { reason: 'pending detail' } })
   assert.equal(rows.length, 2)
   assert.deepEqual(rows.find(p => p.id === 32).ids, [32, 53])
-  assert.equal(rows.find(p => p.id === 32).reason, 'pending detail')
+  assert.ok(rows.find(p => p.id === 32).description.length > 0)
+  assert.equal(rows.find(p => p.id === 32).reason, undefined)
   assert.ok(rows.every(p => !p.ids.includes(74) && !p.ids.includes(87)))
   assert.deepEqual(tallyDisplayPatches(rows), { applied: 0, pending: 1, unmatched: 1, skipped: 0, total: 2, ready: 0 })
+  const status = { 52: 'applied', 67: 'applied', 78: 'applied' }
+  const product = groupPatchesForDisplay(ALL_PATCHES.filter(p => p.id in status), status, 'desktop')
+  assert.deepEqual(product.map(p => p.id), [52])
+  assert.ok(product[0].description.includes('上传'))
+  assert.deepEqual(status, { 52: 'applied', 67: 'applied', 78: 'applied' })
 })
 
 test('new package splits are discovered alongside legacy locations', t => {
